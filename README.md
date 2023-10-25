@@ -1,1 +1,2 @@
-# rapid
+# rapid-agent
+Rapid Agent

@@ -1,0 +1,48 @@
+version: '3.9'
+
+#TODO fix it
+services:
+  postgres:
+    image: postgres:latest
+    container_name: postgres_db
+    environment:
+      POSTGRES_DB: RAPID_DB
+      POSTGRES_USER: RAPID_DB_USER
+      POSTGRES_PASSWORD: RAPID_DB_PASSWORD
+      DATABASE_HOST: postgres
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "RAPID_DB_USER"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    ports:
+      - 5432:5432
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - rapid-network
+
+  rapid-agent:
+    image: rapid-agent:latest
+    container_name: rapid-agent
+    environment:
+      POSTGRES_URI: postgres://RAPID_DB_USER:RAPID_DB_PASSWORD@postgres:5432/RAPID_DB?sslmode=disable
+    ports:
+      - 3000:3000
+    depends_on:
+      postgres:
+          condition: service_healthy
+    links:
+      - postgres
+    networks:
+      - rapid-network
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  rapid-network:
+    driver: bridge
+
+
