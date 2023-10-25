@@ -1,0 +1,44 @@
+name: build-test
+
+on:
+  pull_request:
+
+concurrency:
+  group: ${{ github.head_ref }}
+  cancel-in-progress: true
+
+jobs:
+  unit-test:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Unit Test
+        run: make test
+    
+  build:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Build
+        run: make build
+
+  # generate-tag:
+  #   runs-on: ubuntu-20.04
+  #   outputs:
+  #     tag: ${{ steps.get_tag.outputs.GIT_TAG }}
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v3
+  #     - name: Get tags
+  #       id: get_tag
+  #       uses: ./.github/actions/version-tag
+        
+# TODO
+# lint
+# vet
+# build
+# unit test
+# integration test
+# e2e

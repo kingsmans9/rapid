@@ -1,0 +1,95 @@
+name: release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+    branches:
+      - main
+
+jobs:
+  unit-test:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Unit Test
+        run: make test
+    
+  build:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Build
+        run: make build
+
+
+  # generate-tag:
+  #   runs-on: ubuntu-20.04
+  #   outputs:
+  #     tag: ${{ github.ref_type == 'branch' && steps.get_tag.outputs.GIT_TAG || github.ref_name }}
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v3
+  #     - name: Get tags
+  #       id: get_tag
+  #       uses: ./.github/actions/version-tag
+  #     - name: Push tag
+  #       if: github.ref_type == 'branch'
+  #       env:
+  #         GIT_TAG: ${{ steps.get_tag.outputs.GIT_TAG }}
+  #       run: |
+  #         git tag "$GIT_TAG"
+  #         git push origin "$GIT_TAG"
+
+  # build:
+  #   runs-on: ubuntu-20.04
+  #   needs: [generate-tag]
+  #   steps:
+  #   - uses: actions/setup-go@v3
+  #     with:
+  #       go-version: '^1.20.0'
+  #   - name: Checkout
+  #     uses: actions/checkout@v3
+  #   - name: Cache Go modules
+  #     uses: actions/cache@v3
+  #     with:
+  #       path: |
+  #         ~/.cache/go-build
+  #         ~/go/pkg/mod
+  #       key: ${{ runner.os }}-go-rapid-agent-${{ hashFiles('**/go.sum') }}
+  #       restore-keys: |
+  #         ${{ runner.os }}-rapid-agent-
+  #   - name: Build Go API
+  #     env:
+  #       GIT_TAG: ${{ needs.generate-tag.outputs.tag }}
+  #       SCOPE_DSN_PUBLIC: ""
+  #     run: mapfile -t envs < <(grep -v '#.*' < .image.env) && export "${envs[@]}" && make build
+  #   - name: Upload Go API artifact
+  #     uses: actions/upload-artifact@v3
+  #     with:
+  #       name: go_rapid-agent
+  #       path: ./bin
+
+  # generate-release-notes-pr:
+  #   runs-on: ubuntu-20.04
+  #   needs: [generate-tag]
+  #   if: github.ref_type != 'branch'
+  #   steps:
+  #   - name: Checkout
+  #     uses: actions/checkout@v3
+
+  #   - name: Generate Rapid Agent Release Notes PR
+  #     env:
+  #       GIT_TAG: ${{ needs.generate-tag.outputs.tag }}
+  #       GH_PAT: ${{ secrets.GH_PAT }}
+  #     run: |
+  #       curl -H "Authorization: token $GH_PAT" \
+  #         -H 'Accept: application/json' \
+  #         -d "{\"event_type\": \"rapid-agent-release-notes\", \"client_payload\": {\"version\": \"${GIT_TAG}\" }}" \
+  #         "https://api.github.com/repos/pavansokkenagaraj/rapid-agent/dispatches"
+
+# TODO
+# build-docker
+# push-docker

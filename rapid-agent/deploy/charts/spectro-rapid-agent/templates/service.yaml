@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "spectro-rapid-agent.fullname" . }}
+  labels:
+    {{- include "spectro-rapid-agent.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "spectro-rapid-agent.selectorLabels" . | nindent 4 }}
