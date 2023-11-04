@@ -1,0 +1,14 @@
+apiVersion: v1
+data:
+  clusterCloudType: aws
+  clusterName: peacock2-useast2
+  clusterUid: 64b69d48c4af5481ec7f747c
+  projectUid: 63c61d7204f3901d046761de
+  tenantUid: 6347a907d667ec1429279ff8
+kind: ConfigMap
+metadata:
+  creationTimestamp: "2023-07-18T14:22:21Z"
+  name: cluster-info
+  namespace: cluster-64b69d48c4af5481ec7f747c
+  resourceVersion: "1832"
+  uid: d97b40b1-2051-4df0-851d-1c2bc15fe4ad
